@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include "hangmanGame.h"
 
 // ============
 // Hangman Game
@@ -18,12 +23,6 @@
  *
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include "hangmanGame.h"
-
 #define MAX_WORDS 10
 
 typedef struct
@@ -32,41 +31,20 @@ typedef struct
     char word[20];
 } Word;
 
-// Function prototypes
-void initializeWords(Word words[]);
-void afficherMot(char mot[], int lettresTrouvees[]);
-void jeuPendu(char mot[]);
-
-// Function to encapsulate the Hangman game
-void playHangman()
+// Fonction pour afficher le mot avec les lettres trouvées
+void afficherMot(char mot[], int lettresTrouvees[])
 {
-    Word words[MAX_WORDS];
-    initializeWords(words);
-
-    printf("\n--- Welcome to the Hangman Game! ---\n");
-    printf("Choose a number to select a word:\n");
-
-    for (int i = 0; i < MAX_WORDS; i++)
+    for (int i = 0; i < strlen(mot); i++)
     {
-        // Placeholder for word choices
-        printf("%d. Word %d\n", i + 1, i + 1);
+        if (lettresTrouvees[i])
+            printf("%c ", mot[i]);
+        else
+            printf("_ ");
     }
-
-    int choice;
-    printf("Enter your choice (1 to %d): ", MAX_WORDS);
-    scanf("%d", &choice);
-
-    if (choice < 1 || choice > MAX_WORDS)
-    {
-        printf("Invalid choice. Exiting the game.\n");
-        return;
-    }
-    // Placeholder
-    printf("\nThe word to guess is: %s\n", words[choice - 1].word);
-    jeuPendu(words[choice - 1].word);
+    printf("\n");
 }
 
-// Function to initialize the words
+// Fonction pour initialiser les mots
 void initializeWords(Word words[])
 {
     strcpy(words[0].word, "PROGRAMMATION");
@@ -86,36 +64,45 @@ void initializeWords(Word words[])
     }
 }
 
-// Function to display the word with guessed letters
-void afficherMot(char mot[], int lettresTrouvees[])
+// Fonction pour initialiser les indices
+void wordsIndice(Word wordsIndice[])
 {
-    for (int i = 0; i < strlen(mot); i++)
+    strcpy(wordsIndice[0].word, "Langage de programmation");
+    strcpy(wordsIndice[1].word, "Machine utilisée pour coder");
+    strcpy(wordsIndice[2].word, "Périphérique pour taper");
+    strcpy(wordsIndice[3].word, "Affiche les informations");
+    strcpy(wordsIndice[4].word, "Périphérique pour pointer");
+    strcpy(wordsIndice[5].word, "Réseau mondial");
+    strcpy(wordsIndice[6].word, "Programme informatique");
+    strcpy(wordsIndice[7].word, "Activité ludique");
+    strcpy(wordsIndice[8].word, "Stocke des données");
+    strcpy(wordsIndice[9].word, "Document informatique");
+
+    for (int i = 0; i < MAX_WORDS; i++)
     {
-        if (lettresTrouvees[i])
-            printf("%c ", mot[i]);
-        else
-            printf("_ ");
+        wordsIndice[i].id = i + 1;
     }
-    printf("\n");
 }
 
-// Core Hangman game logic
+// Fonction pour jouer au jeu du pendu
 void jeuPendu(char mot[])
 {
     int lettresTrouvees[strlen(mot)];
     memset(lettresTrouvees, 0, sizeof(lettresTrouvees));
     int essaisRestants = 6;
 
+    printf("Bienvenue dans le jeu du pendu !\n");
+
     while (essaisRestants > 0)
     {
-        printf("\nWord to guess: ");
+        printf("\nMot à deviner : ");
         afficherMot(mot, lettresTrouvees);
-        printf("Remaining attempts: %d\n", essaisRestants);
+        printf("Essais restants : %d\n", essaisRestants);
 
-        printf("Enter a letter: ");
+        printf("Entrez une lettre : ");
         char lettre;
         scanf(" %c", &lettre);
-        lettre = toupper(lettre);
+        lettre = toupper(lettre); // Convertir en majuscule
 
         int trouve = 0;
         for (int i = 0; i < strlen(mot); i++)
@@ -130,10 +117,10 @@ void jeuPendu(char mot[])
         if (!trouve)
         {
             essaisRestants--;
-            printf("Incorrect letter!\n");
+            printf("Lettre incorrecte !\n");
         }
 
-        // Check if the word is fully guessed
+        // Vérifier si le mot est entièrement trouvé
         int gagne = 1;
         for (int i = 0; i < strlen(mot); i++)
         {
@@ -146,10 +133,41 @@ void jeuPendu(char mot[])
 
         if (gagne)
         {
-            printf("\nCongratulations! You guessed the word: %s\n", mot);
+            printf("\nFélicitations ! Vous avez deviné le mot : %s\n", mot);
             return;
         }
     }
 
-    printf("\nYou lost! The word was: %s\n", mot);
+    printf("\nVous avez perdu ! Le mot était : %s\n", mot);
 }
+
+// Fonction pour démarrer le jeu et demander un mot à l'utilisateur
+void playHangman()
+{
+    Word words[MAX_WORDS];
+    Word indices[MAX_WORDS];
+    initializeWords(words);
+    wordsIndice(indices);
+
+    printf("Choisissez un entier [1..9] pour sélectionner un mot :\n");
+
+    for (int i = 0; i < MAX_WORDS; i++)
+    {
+        printf("%d : %s\n", i + 1, indices[i].word);
+    }
+
+    int choice;
+    printf("Entrez votre choix (1 à %d) : ", MAX_WORDS);
+    scanf("%d", &choice);
+
+    if (choice < 1 || choice > MAX_WORDS)
+    {
+        printf("Choix invalide. Fin du programme.\n");
+        return;
+    }
+
+    // Jouer avec le mot sélectionné
+    printf("L'indice est : %s\n", indices[choice - 1].word); // Afficher l'indice
+    jeuPendu(words[choice - 1].word);                        // Lancer le jeu avec le mot sélectionné
+}
+
