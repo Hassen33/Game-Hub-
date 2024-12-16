@@ -1,0 +1,7 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "hangmangame.h": "c",
+        "snakegame.h": "c"
+    }
+}
